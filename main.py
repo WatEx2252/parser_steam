@@ -1,5 +1,5 @@
 import psycopg2
-import parser_var1
+import parser_stem_price
 import pandas as pd
 import operator
 from psycopg2 import sql
@@ -49,9 +49,9 @@ def insert_db_pd_steam():
     data=pd.DataFrame(columns=index)
     for j in range(187):
         if data.shape[0]==0:
-            data=pd.DataFrame(data=parser_var1.find_name_price(j),columns=index)
+            data=pd.DataFrame(data=parser_stem_price.find_name_price(j),columns=index)
         else:
-            data=pd.concat([data,parser_var1.find_name_price(j)],ignore_index=True)
+            data=pd.concat([data,parser_stem_price.find_name_price(j)],ignore_index=True)
         print(str(round((100/187)*j,1))+'%')
     return data
 #Сохранение данных в 3х типов файлов и обработка ошибок.
