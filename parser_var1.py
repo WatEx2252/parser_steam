@@ -18,7 +18,7 @@ def find_name_price(count=0):
     html='null'
     num_ip=0
     URL_TEMPLATE="https://steamcommunity.com/market/search/render/?query=&start={}&count=100&search_descriptions=1&sort_column=popular&sort_dir=desc&appid=730&category_730_ItemSet%5B%5D=any&category_730_ProPlayer%5B%5D=any&category_730_StickerCapsule%5B%5D=any&category_730_TournamentTeam%5B%5D=any&category_730_Weapon%5B%5D=any".format(count*100)
-    
+
     while (html=='null'):
         html = requests.get(URL_TEMPLATE, headers={'User-Agent': UserAgent().chrome}, cookies=cookie)
         html_text=html.text.replace("\\n", "").replace("\\t", "").replace("\\r", "").replace('\/', '/').replace('\\"','\"')
@@ -29,8 +29,8 @@ def find_name_price(count=0):
             time.sleep(120)
             html='null'
         time.sleep(1)
-            
-    for i in soup.find_all('div', class_='market_listing_row market_recent_listing_row market_listing_searchresult'): 
+
+    for i in soup.find_all('div', class_='market_listing_row market_recent_listing_row market_listing_searchresult'):
         swap=i.get_text('>').split(sep='>')
         swap.remove('Starting at:')
         swap[0]=int(swap[0].replace(',',''))
@@ -43,5 +43,3 @@ def find_name_price(count=0):
         data_gen.append(swap)
     data=pd.DataFrame(data=data_gen, columns=index)
     return data
-
-

@@ -4,10 +4,12 @@ import pandas as pd
 import operator
 from psycopg2 import sql
 
+
+#Декоратор для обработки ошибок с базой данных.
 def try_exc(func,):
     def call_func(*args):
         try:
-            conn = psycopg2.connect("dbname=Steam_Prices user=postgres password=WatEx2252")
+            conn = psycopg2.connect("dbname=***** user=postgres password=*****")#Вместо звёздочек сваоя база данных.
             conn.autocommit=True
             cur = conn.cursor()
             return func(*args)
@@ -22,9 +24,10 @@ def try_exc(func,):
     return call_func
 
 
+#Вставка всех пропущенных данных
 @try_exc
 def insert_db(data):
-    conn = psycopg2.connect("dbname=Steam_Prices user=postgres password=WatEx2252")
+    conn = psycopg2.connect("dbname=***** user=postgres password=*****")#Вместо звёздочек сваоя база данных.
     conn.autocommit=True
     cur = conn.cursor()
     load=0
@@ -40,7 +43,7 @@ def insert_db(data):
 
 
 
-
+#парсинг данных и получение их в главном файле
 def insert_db_pd():
     index=['value_count','cost','auto_cost','name_item','game','category']
     data=pd.DataFrame(columns=index)
@@ -51,13 +54,13 @@ def insert_db_pd():
             data=pd.concat([data,parser_var1.find_name_price(j)],ignore_index=True)
         print(str(round((100/187)*j,1))+'%')
     return data
-
+#Сохранение данных в 3х типов файлов и обработка ошибок.
 @try_exc
 def save_data(data, form='excel', file_name='df_steam',index_s=False):
     format_name=['excel','csv','sql']
     tag=['.xlsx','.csv']
     if form=='sql':
-        conn = psycopg2.connect("dbname=Steam_Prices user=postgres password=WatEx2252")
+        conn = psycopg2.connect("dbname=***** user=postgres password=*****")#Вместо звёздочек сваоя база данных.
         cur = conn.cursor()
         print('Вствка всех пропущенных значений')
         insert_db(data)
@@ -80,14 +83,3 @@ def save_data(data, form='excel', file_name='df_steam',index_s=False):
                 print('Некорректный формат файла.')
         except (Exception) as error:
             print("Ошибка при работе с фалами pandas:", error)
-        
-        
-        
-        
-
-
-
-data=insert_db_pd()
-save_data(data)
-#data=pd.read_excel('price.xlsx')
-
