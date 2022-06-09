@@ -1,11 +1,12 @@
 import requests
 import json
 import pandas as pd
+from psycopg2 import sql
 
 def try_exc(func,):
     def call_func(*args):
         try:
-            conn = psycopg2.connect("dbname=***** user=postgres password=*****")#Вместо звёздочек сваоя база данных.
+            conn = psycopg2.connect("dbname=Steam_Prices user=postgres password=WatEx2252")#Вместо звёздочек сваоя база данных.
             conn.autocommit=True
             cur = conn.cursor()
             return func(*args)
@@ -34,9 +35,10 @@ class market_csgo:
 
     @try_exc
     def sql_insert(self):
-        conn = psycopg2.connect("dbname=***** user=postgres password=*****")#Вместо звёздочек сваоя база данных.
+        conn = psycopg2.connect("dbname=Steam_Prices user=postgres password=WatEx2252")#Вместо звёздочек сваоя база данных.
         cur = conn.cursor()
         for i in range(len(self.data)):
+            load=0
             update=sql.SQL("UPDATE market_csgo_prices SET name_weapon='{}', volume={}, price={} WHERE name_weapon = '{}';".format(*self.data.loc[i],data_marker.loc[i,'market_hash_name']))
             cur.execute(update)
             conn.commit()
@@ -46,7 +48,7 @@ class market_csgo:
                     print(str(load)+'%')
     @try_exc
     def sql_select(self):
-        conn = psycopg2.connect("dbname=***** user=postgres password=*****")#Вместо звёздочек сваоя база данных.
+        conn = psycopg2.connect("dbname=Steam_Prices user=postgres password=WatEx2252")#Вместо звёздочек сваоя база данных.
         cur = conn.cursor()
         select = """"Select * FROM market_csgo_prices WHERE price != NULL"""
         selt.data=data_marketcur.execute(select)
