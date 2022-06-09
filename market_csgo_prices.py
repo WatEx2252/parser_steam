@@ -51,8 +51,8 @@ class market_csgo:
         select = """"Select * FROM market_csgo_prices WHERE price != NULL"""
         selt.data=data_marketcur.execute(select)
 
-    def in_excel(self, name='market_db', index_f=False):
+    def in_excel(self, name='market_db.xlsx', index_f=False):
         self.data.to_excel(name, index=index_f)
 
-    def in_csv(self, name='market_db', index_f=False):
+    def in_csv(self, name='market_db.csv', index_f=False):
         self.data.to_csv(name, index=index_f)

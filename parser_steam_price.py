@@ -82,8 +82,8 @@ class steam_csgo:
         select = """"Select * FROM steam_parser"""
         selt.data=data_marketcur.execute(select)
 
-    def in_excel(self, name='steam_db', index_f=False):
+    def in_excel(self, name='steam_db.xlsx', index_f=False):
         self.data.to_excel(name, index=index_f)
 
-    def in_csv(self, name='steam_db', index_f=False):
+    def in_csv(self, name='steam_db.csv', index_f=False):
         self.data.to_csv(name, index=index_f)
