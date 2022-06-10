@@ -82,8 +82,9 @@ class steam_csgo:
     def sql_select(self):
         conn = psycopg2.connect("dbname=Steam_Prices user=postgres password=WatEx2252")#Вместо звёздочек сваоя база данных.
         cur = conn.cursor()
-        select = """"Select * FROM steam_parser"""
-        selt.data=data_marketcur.execute(select)
+        select = """SELECT * FROM steam_parser"""
+        cur.execute(select)
+        self.data=pd.DataFrame(cur.fetchall())
         return self.data
 
     def in_excel(self, name='steam_db.xlsx', index_f=False):

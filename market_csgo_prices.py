@@ -2,6 +2,7 @@ import requests
 import json
 import pandas as pd
 from psycopg2 import sql
+import psycopg2
 
 def try_exc(func,):
     def call_func(*args):
@@ -50,8 +51,10 @@ class market_csgo:
     def sql_select(self):
         conn = psycopg2.connect("dbname=Steam_Prices user=postgres password=WatEx2252")#Вместо звёздочек сваоя база данных.
         cur = conn.cursor()
-        select = """"Select * FROM market_csgo_prices WHERE price != NULL"""
-        selt.data=data_marketcur.execute(select)
+        select = """Select * FROM market_csgo_prices WHERE price IS NOT NULL"""
+        cur.execute(select)
+        self.data=pd.DataFrame(cur.fetchall())
+        return self.data
 
     def in_excel(self, name='market_db.xlsx', index_f=False):
         self.data.to_excel(name, index=index_f)
