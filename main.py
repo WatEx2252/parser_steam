@@ -1,5 +1,5 @@
 import pandas as pd
-from psycopg2 import sql 
+from psycopg2 import sql
 
 import market_csgo_prices
 import parser_steam_price
@@ -14,5 +14,6 @@ class bot:
 
 
     def profit(self):
-        data=pd.concat([self.data_market_csgo, self.data_steam_csgo])
-        return data
+        self.data=pd.concat([self.data_market_csgo, self.data_steam_csgo])
+
+        return self.data
