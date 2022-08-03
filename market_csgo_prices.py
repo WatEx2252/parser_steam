@@ -35,7 +35,7 @@ class market_csgo:
         return self.data
 
     @try_exc
-    def sql_insert(self):
+    def sql_update(self):
         conn = psycopg2.connect("dbname=Steam_Prices user=postgres password=WatEx2252")#Вместо звёздочек сваоя база данных.
         cur = conn.cursor()
         for i in range(len(self.data)):
