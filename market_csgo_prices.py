@@ -40,7 +40,7 @@ class market_csgo:
         cur = conn.cursor()
         for i in range(len(self.data)):
             load=0
-            update=sql.SQL("UPDATE market_csgo_prices SET name_weapon='{}', volume={}, price={} WHERE name_weapon = '{}';".format(*self.data.loc[i],data_marker.loc[i,'market_hash_name']))
+            update=sql.SQL("UPDATE market_csgo_prices SET name_weapon='{}', volume={}, price={} WHERE name_weapon = '{}';".format(*self.data.loc[i],self.data.loc[i,'market_hash_name']))
             cur.execute(update)
             conn.commit()
             if load+1<=round(((i/self.data.shape[0]))*100):
