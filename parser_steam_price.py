@@ -5,6 +5,8 @@ import pandas as pd
 import time
 from psycopg2 import sql
 import psycopg2
+import asyncio
+import aiohttp
 
 def try_exc(func,):
     def call_func(*args):
@@ -25,23 +27,24 @@ def try_exc(func,):
 
 class steam_csgo:
     def __init__(self)->None:
-        self.cookie={'steamLoginSecure':"76561198413746598%7C%7C17369E9904D511B2675154A471F827E55A7820E8"}
+        self.cookie={'steamLoginSecure':"76561198413746598%7C%7C07DF3F438641F1E694D391626C014948C45DADAE6"}
+        self.column=['value_count','cost','auto_cost','name_item','game','category']
+
     def parser(self):
-        index=['value_count','cost','auto_cost','name_item','game','category']
         html=None
         data_gen=[]
         for count in range(187):
-            self.URL_TEMPLATE="https://steamcommunity.com/market/search/render/?query=&start={}&count=100&search_descriptions=1&sort_column=popular&sort_dir=desc&appid=730&category_730_ItemSet%5B%5D=any&category_730_ProPlayer%5B%5D=any&category_730_StickerCapsule%5B%5D=any&category_730_TournamentTeam%5B%5D=any&category_730_Weapon%5B%5D=any".format(count*100)
+            URL_TEMPLATE="https://steamcommunity.com/market/search/render/?query=&start={}&count=100&search_descriptions=0&sort_column=popular&sort_dir=desc&appid=730".format(count)
             while (html==None):
-                html = requests.get(self.URL_TEMPLATE, headers={'User-Agent': UserAgent().chrome}, cookies=self.cookie)
+                html = requests.get(URL_TEMPLATE, headers={'User-Agent': UserAgent().chrome}, cookies=self.cookie)
                 html_text=html.text.replace("\\n", "").replace("\\t", "").replace("\\r", "").replace('\/', '/').replace('\\"','\"')
                 soup = BeautifulSoup (html_text, 'html5lib')
-                if html.status_code==429:
+                if html.status_code!=200:
                     print(html)
                     print('sleep time 2 minuts')
                     time.sleep(120)
                     html=None
-                time.sleep(1)
+            time.sleep(1)
             for i in soup.find_all('div', class_='market_listing_row market_recent_listing_row market_listing_searchresult'):
                 swap=i.get_text('>').split(sep='>')
                 swap.remove('Starting at:')
@@ -53,29 +56,25 @@ class steam_csgo:
                 if swap[-1]=='':
                     swap[-1]=None
                 data_gen.append(swap)
-            self.data=pd.DataFrame(data=data_gen, columns=index)
+            self.data=pd.DataFrame(data=data_gen, columns=self.column)
         return self.data
+
     @try_exc
     def sql_insert(self):
         conn = psycopg2.connect("dbname=Steam_Prices user=postgres password=WatEx2252")#Вместо звёздочек сваоя база данных.
         cur = conn.cursor()
-        load=0
         for i in range(len(self.data)):
                 insert=sql.SQL("INSERT INTO steam_parser(value_count, price, price_auto, name_weapon, game, category) VALUES ({}, {}, {}, '{}', '{}', '{}') ON conflict (name_weapon) do nothing;".format(*self.data.loc[i]))
                 cur.execute(insert)
-                if load+1<=round(((i/self.data.shape[0]))*100):
-                    load=round(((i/self.data.shape[0]))*100)
-                    if round(load/20)==load/20:
-                        print(str(load)+'%')
-        print("сканирование закончено!!!")
+
+    @try_exc
+    def sql_update(self):
+        conn = psycopg2.connect("dbname=Steam_Prices user=postgres password=WatEx2252")#Вместо звёздочек сваоя база данных.
+        cur = conn.cursor()
         for i in range(len(self.data)):
             update=sql.SQL("UPDATE steam_parser SET  value_count={}, price={}, price_auto={}, name_weapon='{}', game='{}', category='{}' WHERE name_weapon = '{}'".format(*self.data.loc[i],self.data.loc[i,'name_item']))
             cur.execute(update)
             conn.commit()
-            if load+1<=round(((i/self.data.shape[0]))*100):
-                load=round(((i/self.data.shape[0]))*100)
-                if round(load/20)==load/20:
-                    print(str(load)+'%')
         print("Обновление данных завершено")
 
     @try_exc
@@ -84,7 +83,7 @@ class steam_csgo:
         cur = conn.cursor()
         select = """SELECT * FROM steam_parser"""
         cur.execute(select)
-        self.data=pd.DataFrame(cur.fetchall())
+        self.data=pd.DataFrame(cur.fetchall(), columns=self.column)
         return self.data
 
     def in_excel(self, name='steam_db.xlsx', index_f=False):

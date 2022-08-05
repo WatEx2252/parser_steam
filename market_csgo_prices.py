@@ -44,7 +44,7 @@ class market_csgo:
             cur.execute(update)
             conn.commit()
             if load+1<=round(((i/self.data.shape[0]))*100):
-                load=round(((i/self.data.shape[0]))*100)
+                load=((i/self.data.shape[0]))*100
                 if round(load/20)==load/20:
                     print(str(load)+'%')
     @try_exc

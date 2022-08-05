@@ -16,3 +16,5 @@ class bot:
     def profit(self):
         data=pd.concat([self.data_market_csgo, self.data_steam_csgo])
         return data
+
+    def refrash__db

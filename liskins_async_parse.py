@@ -1,7 +1,6 @@
 import pandas as pd
 import asyncio
 import aiohttp
-import time
 from bs4 import BeautifulSoup
 from psycopg2 import sql
 import psycopg2
@@ -26,9 +25,10 @@ def try_exc(func,):
 
 class parser_liskins():
     def __init__(self):
-        #self.start=asyncio.run(self.main())
         self.data=[]
         self.pd_data=[]
+        self.URL_TEMPLATE='https://lis-skins.ru/market/csgo/?page='
+
 
     async def parser(self,session,url,page_id):
         url=url+str(page_id)
@@ -40,9 +40,6 @@ class parser_liskins():
     def data_in_html(self, html):
         soup = BeautifulSoup(html, 'html.parser')
         swap=[]
-        f_soup=soup.find('div',class_='skins-market-skins-list')
-        count=0
-        tru=0
         for i in f_soup:
             try:
                 count+=1
@@ -62,7 +59,6 @@ class parser_liskins():
                     swap.append(0)
                 self.data.append(swap)
                 swap=[]
-                tru+=1
             except Exception as e:
                 swap=[]
 
@@ -70,10 +66,9 @@ class parser_liskins():
         if type(self.data)!=type(list()):
             self.data=[]
         tasks=[]
-        url='https://lis-skins.ru/market/csgo/?page='
         async with aiohttp.ClientSession() as session:
             for page_id in range(65):
-                task=asyncio.create_task(self.parser(session,url, page_id))
+                task=asyncio.create_task(self.parser(session, self.URL_TEMPLATE, page_id))
                 tasks.append(task)
             await asyncio.gather(*tasks)
         self.pd_data=pd.DataFrame(data=self.data, columns=['name_weapon', 'exterier', 'cost', 'count', 'hold'])
@@ -89,7 +84,3 @@ class parser_liskins():
             update=sql.SQL("""UPDATE liskins SET name_weapon='{}',exterier='{}', price={}, counter={}, hold_item='{}' WHERE name_weapon = '{}';""".format(*self.pd_data.loc[i], self.pd_data.loc[i,'name_weapon']))
             cur.execute(update)
             conn.commit()
-            if load+1<=round(((i/self.pd_data.shape[0]))*100):
-                load=round(((i/self.pd_data.shape[0]))*100)
-                if round(load/20)==load/20:
-                    print(str(load)+'%')
