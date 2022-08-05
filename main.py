@@ -1,5 +1,5 @@
 import pandas as pd
-from psycopg2 import sql 
+from psycopg2 import sql
 
 import market_csgo_prices
 import parser_steam_price
