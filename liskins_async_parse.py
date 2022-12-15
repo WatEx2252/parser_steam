@@ -40,6 +40,7 @@ class parser_liskins():
     def data_in_html(self, html):
         soup = BeautifulSoup(html, 'html.parser')
         swap=[]
+        f_soup=soup.find('div', class_='skins-market-skins-list')
         for i in f_soup:
             try:
                 count+=1
